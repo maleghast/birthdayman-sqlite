@@ -1,0 +1,3 @@
+# BirthdayMan - a Toy App for managing birthday reminders
+
+Details to follow...
