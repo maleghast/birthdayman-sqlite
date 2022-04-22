@@ -1,5 +1,5 @@
 {
-  "name": "nbb-experiment",
+  "name": "birthdayman-sqlite",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "better-sqlite3": "^7.5.1",
     "inquirer": "^8.2.2",
-    "moment": "^2.29.3",
-    "sqlite3": "^5.0.4"
+    "moment": "^2.29.3"
   }
 }
