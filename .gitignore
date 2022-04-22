@@ -2,3 +2,5 @@ node_modules
 .cache
 .calva
 .nrepl-port
+birthdays.sqbpro
+birthdays.db
