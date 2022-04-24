@@ -61,7 +61,7 @@
   (p/let [u_query (.prepare db "SELECT * FROM people")
           u_resp (.all u_query)
           u_res (js->clj u_resp :keywordize-keys true)]
-         u_res))
+    u_res))
 
 (defn get-people-choices
   "Function to get realised choices from get-people"
@@ -92,7 +92,7 @@
           up_resp (.run up_query name personID gift-idea)
           up_id (.-lastInsertRowid up_resp)
           res (if (= 1 up_id) "Success!" "Something went wrong...")]
-         res))
+    res))
 
 (defn update-birthday-entry
   "Function to update Birthday Gift Entry in DB"
