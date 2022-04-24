@@ -58,7 +58,7 @@
 (defn get-people
   "Function to retrieve the People in the Database"
   []
-  (p/let [u_query (.prepare db "SELECT * FROM people")
+  (let [u_query (.prepare db "SELECT * FROM people")
           u_resp (.all u_query)
           u_res (js->clj u_resp :keywordize-keys true)]
     u_res))
@@ -66,7 +66,7 @@
 (defn get-people-choices
   "Function to get realised choices from get-people"
   []
-  (p/let [people (get-people)]
+  (let [people (get-people)]
     (reduce
      (fn
        [acc coll]
@@ -77,22 +77,24 @@
      []
      people)))
 
-(def update-questions (clj->js [{:name "personID"
-                                 :type "list"
-                                 :message "Whose Birthday Gift do you want to update?"
-                                 :choices (get-people-choices)}
-                                {:name "gift-idea"
-                                 :type "input"
-                                 :message "What would you like to get for them as a gift?"}]))
+(def update-questions 
+  (let [choices (get-people-choices)]
+         (clj->js [{:name "personID"
+                    :type "list"
+                    :message "Whose Birthday Gift do you want to update?"
+                    :choices choices}
+                   {:name "gift-idea"
+                    :type "input"
+                    :message "What would you like to get for them as a gift?"}])))
 
 (defn update-birthday-gift
   "Function to write update to Birthday Gift Idea to Database"
   [personID gift-idea]
-  (p/let [up_query (.prepare db "INSERT INTO gift_ideas(personID, gift_idea) VALUES (?,?)")
-          up_resp (.run up_query name personID gift-idea)
-          up_id (.-lastInsertRowid up_resp)
+  (let [up_query (.prepare db "UPDATE gift_ideas SET gift_idea=? WHERE personID=?")
+          up_resp (.run up_query gift-idea personID)
+          up_id (.-changes up_resp)
           res (if (= 1 up_id) "Success!" "Something went wrong...")]
-    res))
+    (println res)))
 
 (defn update-birthday-entry
   "Function to update Birthday Gift Entry in DB"
