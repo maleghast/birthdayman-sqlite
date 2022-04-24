@@ -104,7 +104,17 @@
           {:keys [personID gift-idea]} answers]
     (update-birthday-gift personID gift-idea)))
 
+(defn search-birthdays
+  "Function to search for Birthdays on a specific day"
+  [day month]
+  (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE day=? AND month=? AND p.personID=g.personID")
+        s_resp (.all s_query day month)
+        s_res (js->clj s_resp :keywordize-keys true)]
+    (run! (fn [{:keys [name gift_idea]}]
+            (println "It's" (str name "'s") "Birthday today and they want a" (str gift_idea) "🏆")) s_res)))
+
 (cond
   (= (first *command-line-args*) "list") (list-birthdays)
   (= (first *command-line-args*) "update") (update-birthday-entry)
+  (= (first *command-line-args*) "search") (search-birthdays (second *command-line-args*) (last *command-line-args*))
   :else (create-birthday-entry))
