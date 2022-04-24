@@ -111,7 +111,7 @@
         s_resp (.all s_query day month)
         s_res (js->clj s_resp :keywordize-keys true)]
     (run! (fn [{:keys [name gift_idea]}]
-            (println "It's" (str name "'s") "Birthday today and they want a" (str gift_idea) "🏆")) s_res)))
+            (println "It's" (str name "'s") "Birthday on the" (str day) "of" (str month) "and they want a" (str gift_idea) "🏆")) s_res)))
 
 (cond
   (= (first *command-line-args*) "list") (list-birthdays)
