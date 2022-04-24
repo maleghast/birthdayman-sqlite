@@ -67,23 +67,47 @@
                       u_res)]
          res))
 
-(def update-questions
+(defn get-people-choices
+  "Function to get realised choices from get-people"
+  []
   (p/let [people (get-people)]
-         (clj->js [{:name "personID"
-                    :type "list"
-                    :message "Whose Birthday Gift do you want to update?"
-                    :choices (reduce
-                              (fn
-                                [acc coll]
-                                (conj
-                                 acc
-                                 {:name (last coll)
-                                  :value (first coll)}))
-                              []
-                              people)}
-                   {:name "gift-idea"
-                    :type "input"
-                    :message "What would you like to get for them as a gift?"}])))
+    (reduce
+     (fn
+       [acc coll]
+       (conj
+        acc
+        {:name (last coll)
+         :value (first coll)}))
+     []
+     people)))
+
+(def update-questions (clj->js [{:name "personID"
+                                 :type "list"
+                                 :message "Whose Birthday Gift do you want to update?"
+                                 :choices (get-people-choices)}
+                                {:name "gift-idea"
+                                 :type "input"
+                                 :message "What would you like to get for them as a gift?"}]))
+
+(comment
+  (def update-questions
+    (p/let [people (get-people)]
+      (clj->js [{:name "personID"
+                 :type "list"
+                 :message "Whose Birthday Gift do you want to update?"
+                 :choices (reduce
+                           (fn
+                             [acc coll]
+                             (conj
+                              acc
+                              {:name (last coll)
+                               :value (first coll)}))
+                           []
+                           people)}
+                {:name "gift-idea"
+                 :type "input"
+                 :message "What would you like to get for them as a gift?"}])))
+  )
 
 (defn update-birthday-gift
   "Function to write update to Birthday Gift Idea to Database"
