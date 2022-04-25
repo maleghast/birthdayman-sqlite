@@ -12,3 +12,34 @@ then add extra functionality to change the gift idea and to be able to search fo
 [Here's a link to Dan's video](https://youtu.be/_-G9EKaAyuI) - The video is Dan coding and getting pair assistance
 from the excellent [borkdude](https://github.com/borkdude), creator of Babashka and NBB amongst other awesome stuff
 from the Clojure Ecosystem.
+
+## Usage - Installation
+
+If you just want to play around with this for yourself the simplest way to do that is to clone the repo, and then follow these steps:
+
+1. cp birthdays.db.template birthdays.db
+2. npm install nbb -g
+3. npm install
+
+(You will need a current version of NodeJS to satisfy the dependency needs of NBB)
+
+At some point in the near future I will be packaging the app up for NPM.  When this
+is done I will add instructions to simply install with npx.
+
+## Usage - Running the app
+
+Simply run the following in the root of the project to add a Birthday that you want to remember:
+
+nbb app.cljs
+
+If you want to see a list of Birthdays in the database on today’s date, use:
+
+nbb app.cljs list
+
+If you want to find the Birthdays that are stored on a specific date, use:
+
+nbb app.cljs search [day] [month] (e.g. nbb app.cljs 4 July)
+
+If you want to update the gift idea for a stored Birthday, use:
+
+nbb app.cljs update
