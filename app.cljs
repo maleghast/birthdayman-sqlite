@@ -63,6 +63,13 @@
           u_res (js->clj u_resp :keywordize-keys true)]
     u_res))
 
+(defn list-people
+  "Function to output all of the people in the DB on the command line"
+  []
+  (let [users (get-people)]
+    (doseq [user users]
+      (println (:personID user) "-"(:name user) "-" (:day user) (:month user)))))
+
 (defn get-people-choices
   "Function to get realised choices from get-people"
   []
@@ -104,6 +111,31 @@
           {:keys [personID gift-idea]} answers]
     (update-birthday-gift personID gift-idea)))
 
+(def delete-questions
+  (let [choices (get-people-choices)]
+    (clj->js [{:name "personID"
+               :type "list"
+               :message "Who do you want to remove?"
+               :choices choices}])))
+
+(defn delete-birthday
+  "Function to delete someone from the birthdays DB"
+  [personID]
+  (p/let [p_query (.prepare db "DELETE FROM people WHERE personID=?")
+          _ (.run p_query personID) 
+          g_query (.prepare db "DELETE FROM gift_ideas WHERE personID=?")
+          g_resp (.run g_query personID)
+          res (if (= 1 (.-changes g_resp)) "Success!" "Something went wrong...")]
+    res))
+
+(defn delete-birthday-entry
+  "Function to delete Birthday Entries all together (manage duplicates, un-friend people etc.)"
+  []
+  (p/let [_answers (inquirer/prompt delete-questions)
+          answers (js->clj _answers :keywordize-keys true)
+          {:keys [:personID]} answers]
+         (delete-birthday personID)))
+
 (defn search-birthdays
   "Function to search for Birthdays on a specific day"
   [day month]
@@ -115,6 +147,8 @@
 
 (cond
   (= (first *command-line-args*) "list") (list-birthdays)
+  (= (first *command-line-args*) "list-people") (list-people)
   (= (first *command-line-args*) "update") (update-birthday-entry)
+  (= (first *command-line-args*) "delete") (delete-birthday-entry)
   (= (first *command-line-args*) "search") (search-birthdays (second *command-line-args*) (last *command-line-args*))
   :else (create-birthday-entry))
