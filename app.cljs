@@ -177,8 +177,11 @@
   (= (first *command-line-args*) "list-people") (list-people)
   (= (first *command-line-args*) "update") (update-birthday-entry)
   (= (first *command-line-args*) "delete") (delete-birthday-entry)
-  (= (first *command-line-args*) "search-day") (search-birthdays-by-day (second *command-line-args*) (last *command-line-args*))
-  (= (first *command-line-args*) "search-month") (search-birthdays-by-month (last *command-line-args*))
+  (= (first *command-line-args*) "search-day") (search-birthdays-by-day
+                                                (second *command-line-args*)
+                                                (last *command-line-args*))
+  (= (first *command-line-args*) "search-month") (search-birthdays-by-month
+                                                  (last *command-line-args*))
   (= (first *command-line-args*) "help") (help-message "help")
   :else (if (= 0 (count *command-line-args*))
           (create-birthday-entry)
