@@ -1,0 +1,22 @@
+************************************************************************
+                           Birthday Manager
+************************************************************************
+- run the app to add a birthday:
+
+nbb app.cljs
+
+- add the following arguments for other commands:
+
+help (see this help)
+list (see today's birthdays)
+list-people (see a complete list of stored birthdays)
+update (update a gift idea for a specific person)
+delete (delete a person from the list)
+search-day [day] [month] e.g. search-day 10 May (search for birthdays on
+                                                 a specific day)
+search-month [month] e.g. search-month May (search for birthdays in a
+                                            specific month)
+
+If you append any other argument it won't work.
+
+************************************************************************
