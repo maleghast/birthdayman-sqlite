@@ -6,7 +6,7 @@ This is a "toy" app based on the app created by Dan Amber as part of an online v
 [NBB](https://github.com/babashka/nbb) - here's a link to his [project](https://github.com/danownsthisspace/birthman)
 
 In the spirit of trying to learn NBB for myself but get a flying start from Dan's excellent video, I decided
-to change the DB tpo sqlite3 and to add another bit of data (what the person wants for their birthday), and
+to change the DB to sqlite3 and to add another bit of data (what the person wants for their birthday), and
 then add extra functionality to change the gift idea and to be able to search for birthdays on an arbitrary date.
 
 [Here's a link to Dan's video](https://youtu.be/_-G9EKaAyuI) - The video is Dan coding and getting pair assistance
@@ -32,14 +32,6 @@ Simply run the following in the root of the project to add a Birthday that you w
 
 nbb app.cljs
 
-If you want to see a list of Birthdays in the database on today’s date, use:
+If you want to see a list of commands available, use:
 
-nbb app.cljs list
-
-If you want to find the Birthdays that are stored on a specific date, use:
-
-nbb app.cljs search [day] [month] (e.g. nbb app.cljs 4 July)
-
-If you want to update the gift idea for a stored Birthday, use:
-
-nbb app.cljs update
+nbb app.cljs help
