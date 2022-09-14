@@ -2,7 +2,8 @@
   (:require ["better-sqlite3$default" :as sql]
             ["inquirer$default" :as inquirer]
             ["moment$default" :as moment]
-            [promesa.core :as p]))
+            [promesa.core :as p]
+            [clojure.string :as s]))
 
 (def questions (clj->js [{:name "name"
                           :type "input"
@@ -16,6 +17,11 @@
                           :type "list"
                           :message "What Month is their Birthday"
                           :choices (moment/months)}
+                         {:name "year"
+                          :type "number"
+                          :message "What Year were they born?"
+                          :validate (fn [v]
+                                      (<= 1900 v (.format (moment) "YYYY")))}
                          {:name "gift-idea"
                           :type "input"
                           :message "What shall you get for them?"
@@ -25,9 +31,11 @@
 
 (defn write-birthday
   "Function to persist a Birthday Record"
-  [name day month gift-idea]
-  (p/let [p_query (.prepare db "INSERT INTO people(name, day, month) VALUES (?,?,?)")
-          p_resp (.run p_query name day month)
+  [name day month year gift-idea]
+  (p/let [p_query (.prepare db "INSERT INTO people(name, day, month, year, fname, sname) VALUES (?,?,?,?,?,?)")
+          fname (first (s/split name #" "))
+          sname (last (s/split name #" "))
+          p_resp (.run p_query name day month year fname sname)
           p_id (.-lastInsertRowid p_resp)
           g_query (.prepare db "INSERT INTO gift_ideas(personID, gift_idea) VALUES (?,?)")
           g_resp (.run g_query p_id gift-idea)
@@ -39,8 +47,8 @@
   []
   (p/let [_answers (inquirer/prompt questions)
           answers (js->clj _answers :keywordize-keys true)
-          {:keys [name day month gift-idea]} answers]
-    (write-birthday name day month gift-idea)))
+          {:keys [name day month year gift-idea]} answers]
+    (write-birthday name day month year gift-idea)))
 
 (defn list-birthdays
   "Function to retrieve birthdays"
@@ -58,7 +66,7 @@
 (defn get-people
   "Function to retrieve the People in the Database"
   []
-  (let [u_query (.prepare db "SELECT * FROM people")
+  (let [u_query (.prepare db "SELECT * FROM people ORDER BY sname,fname ASC")
           u_resp (.all u_query)
           u_res (js->clj u_resp :keywordize-keys true)]
     u_res))
@@ -68,7 +76,7 @@
   []
   (let [users (get-people)]
     (doseq [user users]
-      (println (:personID user) "-"(:name user) "-" (:day user) (:month user)))))
+      (println (:personID user) "-"(:name user) "-" (:day user) (:month user) (:year user)))))
 
 (defn get-people-choices
   "Function to get realised choices from get-people"
@@ -136,19 +144,30 @@
           {:keys [:personID]} answers]
          (delete-birthday personID)))
 
-(defn search-birthdays
+(defn search-birthdays-by-day
   "Function to search for Birthdays on a specific day"
   [day month]
   (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE day=? AND month=? AND p.personID=g.personID")
         s_resp (.all s_query day month)
         s_res (js->clj s_resp :keywordize-keys true)]
-    (run! (fn [{:keys [name gift_idea]}]
-            (println "It's" (str name "'s") "Birthday on the" (str day) "of" (str month) "and they want a" (str gift_idea) "🏆")) s_res)))
+    (doseq [res s_res]
+      (println "It's" (str (:name res) "'s") "Birthday on the" (str (:day res)) "of" (str (:month res)) "and they want a" (:gift_idea res) "🏆"))))
+
+(defn search-birthdays-by-month
+  "Function to search for Birthdays in a specific month"
+  [month]
+  (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE month=? AND p.personID=g.personID")
+        s_resp (.all s_query month)
+        s_res (js->clj s_resp :keywordize-keys true)]
+    (prn-str s_res)
+    (doseq [res s_res]
+      (println "It's" (str (:name res) "'s") "Birthday on the" (str (:day res)) "of" (str (:month res)) "and they want a" (:gift_idea res) "🏆"))))
 
 (cond
   (= (first *command-line-args*) "list") (list-birthdays)
   (= (first *command-line-args*) "list-people") (list-people)
   (= (first *command-line-args*) "update") (update-birthday-entry)
   (= (first *command-line-args*) "delete") (delete-birthday-entry)
-  (= (first *command-line-args*) "search") (search-birthdays (second *command-line-args*) (last *command-line-args*))
+  (= (first *command-line-args*) "search-day") (search-birthdays-by-day (second *command-line-args*) (last *command-line-args*))
+  (= (first *command-line-args*) "search-month") (search-birthdays-by-month (last *command-line-args*))
   :else (create-birthday-entry))
