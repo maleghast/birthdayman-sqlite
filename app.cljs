@@ -1,5 +1,6 @@
 (ns app
   (:require ["better-sqlite3$default" :as sql]
+            ["fs" :as fs]
             ["inquirer$default" :as inquirer]
             ["moment$default" :as moment]
             [promesa.core :as p]
@@ -163,6 +164,14 @@
     (doseq [res s_res]
       (println "It's" (str (:name res) "'s") "Birthday on the" (str (:day res)) "of" (str (:month res)) "and they want a" (:gift_idea res) "🏆"))))
 
+(defn help-message
+  "Function to display help and other on-invocation messages"
+  [mode]
+  (cond
+    (= mode "help") (println (str (fs/readFileSync "./help.txt")))
+    (= mode "invalid") (println (str (fs/readFileSync "./invalid.txt")))
+    :else (println "Unknown Help Mode")))
+
 (cond
   (= (first *command-line-args*) "list") (list-birthdays)
   (= (first *command-line-args*) "list-people") (list-people)
@@ -170,7 +179,7 @@
   (= (first *command-line-args*) "delete") (delete-birthday-entry)
   (= (first *command-line-args*) "search-day") (search-birthdays-by-day (second *command-line-args*) (last *command-line-args*))
   (= (first *command-line-args*) "search-month") (search-birthdays-by-month (last *command-line-args*))
-  (= (first *command-line-args*) "help") (println "Help")
+  (= (first *command-line-args*) "help") (help-message "help")
   :else (if (= 0 (count *command-line-args*))
           (create-birthday-entry)
-          (println "Invalid Command - run nbb app.cljs help to see usage")))
+          (help-message "invalid")))
