@@ -57,12 +57,19 @@
 
 (defn make-birthday-message
   "Function to build a birthday message"
-  [name gift-idea]
-  (str "It's "
-       (str name "'s")
-       " Birthday today and they want a "
-       (str gift-idea)
-       " 🏆"))
+  [type name gift-idea]
+  (cond
+    (= type "month") (str "It's "
+                          (str name "'s")
+                          " Birthday this month and they want a "
+                          (str gift-idea)
+                          " 🏆")
+    :else
+    (str "It's "
+         (str name "'s")
+         " Birthday today and they want a "
+         (str gift-idea)
+         " 🏆")))
 
 (defn list-birthdays
   "Function to retrieve birthdays"
@@ -87,6 +94,7 @@
                       acc
                       {:birthday-message
                        (make-birthday-message
+                        "day"
                         (:name coll)
                         (:gift_idea coll))}))
                    []
@@ -192,8 +200,11 @@
                  (fn [acc coll]
                    (conj
                     acc
-                    {:birthday-message
+                    {:day (:day coll)
+                     :month month
+                     :birthday-message
                      (make-birthday-message
+                      "day"
                       (:name coll)
                       (:gift_idea coll))}))
                  []
@@ -216,8 +227,11 @@
                  (fn [acc coll]
                    (conj
                     acc
-                    {:birthday-message
+                    {:day (:day coll)
+                     :month month
+                     :birthday-message
                      (make-birthday-message
+                      "month"
                       (:name coll)
                       (:gift_idea coll))}))
                  []
