@@ -34,7 +34,10 @@
 (defn write-birthday
   "Function to persist a Birthday Record"
   [name day month year gift-idea]
-  (p/let [p_query (.prepare db "INSERT INTO people(name, day, month, year, fname, sname) VALUES (?,?,?,?,?,?)")
+  (p/let [p_query (.prepare db "INSERT INTO people
+                                (name, day, month, year, fname, sname)
+                                VALUES
+                                (?,?,?,?,?,?)")
           fname (first (s/split name #" "))
           sname (last (s/split name #" "))
           p_resp (.run p_query name day month year fname sname)
@@ -165,7 +168,8 @@
     res))
 
 (defn delete-birthday-entry
-  "Function to delete Birthday Entries all together (manage duplicates, un-friend people etc.)"
+  "Function to delete Birthday Entries all together (manage duplicates,
+   un-friend people etc.)"
   []
   (p/let [_answers (inquirer/prompt delete-questions)
           answers (js->clj _answers :keywordize-keys true)
