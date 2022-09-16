@@ -3,6 +3,7 @@
             ["fs" :as fs]
             ["inquirer$default" :as inquirer]
             ["moment$default" :as moment]
+            ["console" :as console]
             [promesa.core :as p]
             [clojure.string :as s]))
 
@@ -51,6 +52,15 @@
           {:keys [name day month year gift-idea]} answers]
     (write-birthday name day month year gift-idea)))
 
+(defn make-birthday-message
+  "Function to build a birthday message"
+  [name gift-idea]
+  (str "It's "
+       (str name "'s")
+       " Birthday today and they want a "
+       (str gift-idea)
+       " 🏆"))
+
 (defn list-birthdays
   "Function to retrieve birthdays"
   []
@@ -58,11 +68,29 @@
           day (.date (moment))
           b_query (.prepare
                    db
-                   "SELECT * FROM people AS p, gift_ideas AS g WHERE day=? AND month=? AND p.personID=g.personID")
+                   "SELECT * 
+                    FROM people 
+                    AS 
+                    p, gift_ideas AS g 
+                    WHERE 
+                    day=? 
+                    AND month=? 
+                    AND p.personID=g.personID")
           b_resp (.all b_query day month)
-          b_res (js->clj b_resp :keywordize-keys true)]
-    (run! (fn [{:keys [name gift_idea]}]
-            (println "It's" (str name "'s") "Birthday today and they want a" (str gift_idea) "🏆")) b_res)))
+          b_res (js->clj b_resp :keywordize-keys true)
+          b_mesgs (reduce
+                   (fn [acc coll]
+                     (conj
+                      acc
+                      {:birthday-message
+                       (make-birthday-message
+                        (:name coll)
+                        (:gift_idea coll))}))
+                   []
+                   b_res)]
+         (if (= 0 (count b_mesgs))
+           (println "No Birthdays Today")
+           (console/table (clj->js b_mesgs)))))
 
 (defn get-people
   "Function to retrieve the People in the Database"
@@ -76,8 +104,7 @@
   "Function to output all of the people in the DB on the command line"
   []
   (let [users (get-people)]
-    (doseq [user users]
-      (println (:personID user) "-"(:name user) "-" (:day user) (:month user) (:year user)))))
+    (console/table (clj->js users))))
 
 (defn get-people-choices
   "Function to get realised choices from get-people"
@@ -148,21 +175,52 @@
 (defn search-birthdays-by-day
   "Function to search for Birthdays on a specific day"
   [day month]
-  (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE day=? AND month=? AND p.personID=g.personID ORDER BY sname ASC")
+  (let [s_query (.prepare db "SELECT * FROM 
+                              people AS p, gift_ideas AS g 
+                              WHERE day=? 
+                              AND 
+                              month=? 
+                              AND p.personID=g.personID 
+                              ORDER BY sname ASC")
         s_resp (.all s_query day month)
-        s_res (js->clj s_resp :keywordize-keys true)]
-    (doseq [res s_res]
-      (println "It's" (str (:name res) "'s") "Birthday on the" (str (:day res)) "of" (str (:month res)) "and they want a" (:gift_idea res) "🏆"))))
+        s_res (js->clj s_resp :keywordize-keys true)
+        s_mesgs (reduce
+                 (fn [acc coll]
+                   (conj
+                    acc
+                    {:birthday-message
+                     (make-birthday-message
+                      (:name coll)
+                      (:gift_idea coll))}))
+                 []
+                 s_res)]
+    (if (= 0 (count s_mesgs))
+      (println "No Birthdays on" (str day " " month))
+      (console/table (clj->js s_mesgs)))))
 
 (defn search-birthdays-by-month
   "Function to search for Birthdays in a specific month"
   [month]
-  (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE month=? AND p.personID=g.personID ORDER BY day,sname ASC")
+  (let [s_query (.prepare db "SELECT * FROM 
+                              people AS p, gift_ideas AS g 
+                              WHERE month=? 
+                              AND p.personID=g.personID 
+                              ORDER BY day,sname ASC")
         s_resp (.all s_query month)
-        s_res (js->clj s_resp :keywordize-keys true)]
-    (prn-str s_res)
-    (doseq [res s_res]
-      (println "It's" (str (:name res) "'s") "Birthday on the" (str (:day res)) "of" (str (:month res)) "and they want a" (:gift_idea res) "🏆"))))
+        s_res (js->clj s_resp :keywordize-keys true)
+        s_mesgs (reduce
+                 (fn [acc coll]
+                   (conj
+                    acc
+                    {:birthday-message
+                     (make-birthday-message
+                      (:name coll)
+                      (:gift_idea coll))}))
+                 []
+                 s_res)]
+    (if (= 0 (count s_mesgs))
+      (println "No Birthdays in" (str month))
+      (console/table (clj->js s_mesgs)))))
 
 (defn help-message
   "Function to display help and other on-invocation messages"
