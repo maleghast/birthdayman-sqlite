@@ -148,7 +148,7 @@
 (defn search-birthdays-by-day
   "Function to search for Birthdays on a specific day"
   [day month]
-  (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE day=? AND month=? AND p.personID=g.personID")
+  (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE day=? AND month=? AND p.personID=g.personID ORDER BY sname ASC")
         s_resp (.all s_query day month)
         s_res (js->clj s_resp :keywordize-keys true)]
     (doseq [res s_res]
@@ -157,7 +157,7 @@
 (defn search-birthdays-by-month
   "Function to search for Birthdays in a specific month"
   [month]
-  (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE month=? AND p.personID=g.personID")
+  (let [s_query (.prepare db "SELECT * FROM people AS p, gift_ideas AS g WHERE month=? AND p.personID=g.personID ORDER BY day,sname ASC")
         s_resp (.all s_query month)
         s_res (js->clj s_resp :keywordize-keys true)]
     (prn-str s_res)
