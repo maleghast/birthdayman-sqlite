@@ -1,6 +1,7 @@
 (ns app
   (:require ["better-sqlite3$default" :as sql]
             ["fs" :as fs]
+            ["path" :as path]
             ["inquirer$default" :as inquirer]
             ["moment$default" :as moment]
             ["console" :as console]
@@ -32,7 +33,7 @@
                           :message "What shall you get for them?"
                           :default "Beats the shit outta me!"}]))
 
-(def db (sql. "./birthdays.db"))
+(def db (sql. (str (path/resolve) "/birthdays.db")))
 
 (defn write-birthday
   "Function to persist a Birthday Record"
