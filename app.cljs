@@ -33,7 +33,20 @@
                           :message "What shall you get for them?"
                           :default "Beats the shit outta me!"}]))
 
-(def db (sql. "./db/birthdays.db"))
+(defn script-loc
+  "Function to get the Script Location"
+  []
+  (let [script (path/resolve *file*)]
+    (-> script
+        (s/split #"/")
+        drop-last
+        (->>
+         (interleave (repeat "/")))
+        rest
+        rest
+        s/join)))
+
+(def db (sql. (str (script-loc) "/db/birthdays.db")))
 
 (defn write-birthday
   "Function to persist a Birthday Record"
