@@ -32,7 +32,7 @@
                           :message "What shall you get for them?"
                           :default "Beats the shit outta me!"}]))
 
-(def db (sql. "birthdays.db"))
+(def db (sql. "./birthdays.db"))
 
 (defn write-birthday
   "Function to persist a Birthday Record"
