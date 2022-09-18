@@ -7,6 +7,7 @@
             [promesa.core :as p]
             [clojure.string :as s]))
 
+;;; Defining cmd-line args for use via index.mjs
 (def cmd-line-args (not-empty (js->clj (.slice js/process.argv 2))))
 
 (def questions (clj->js [{:name "name"
