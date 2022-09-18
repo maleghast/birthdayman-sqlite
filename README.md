@@ -30,8 +30,8 @@ is done I will add instructions to simply install with npx.
 
 Simply run the following in the root of the project to add a Birthday that you want to remember:
 
-nbb app.cljs
+node index.mjs
 
 If you want to see a list of commands available, use:
 
-nbb app.cljs help
+node index.mjs help
