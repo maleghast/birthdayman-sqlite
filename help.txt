@@ -3,7 +3,7 @@
 ************************************************************************
 - run the app to add a birthday:
 
-nbb app.cljs
+node index.mjs
 
 - add the following arguments for other commands:
 
