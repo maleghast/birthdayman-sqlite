@@ -5,6 +5,7 @@
             ["inquirer$default" :as inquirer]
             ["moment$default" :as moment]
             ["console" :as console]
+            [nbb.core]
             [promesa.core :as p]
             [clojure.string :as s]))
 
@@ -36,7 +37,7 @@
 (defn script-loc
   "Function to get the Script Location"
   []
-  (let [script (path/resolve *file*)]
+  (let [script (path/resolve nbb.core/*file*)]
     (-> script
         (s/split #"/")
         drop-last
