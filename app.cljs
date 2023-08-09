@@ -47,6 +47,8 @@
         rest
         s/join)))
 
+(script-loc)
+
 (def db (sql. (str (script-loc) "/db/birthdays.db")))
 
 (defn write-birthday
@@ -262,9 +264,15 @@
   "Function to display help and other on-invocation messages"
   [mode]
   (cond
-    (= mode "help") (println (str (fs/readFileSync "./help.txt")))
-    (= mode "invalid") (println (str (fs/readFileSync "./invalid.txt")))
+    (= mode "help") (println (str (fs/readFileSync (str
+                                                    (script-loc)
+                                                    "/help.txt"))))
+    (= mode "invalid") (println (str (fs/readFileSync (str
+                                                       (script-loc)
+                                                       "/invalid.txt"))))
     :else (println "Unknown Help Mode")))
+
+(help-message "help")
 
 (cond
   (= (first cmd-line-args) "list") (list-birthdays)
