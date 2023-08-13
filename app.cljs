@@ -47,8 +47,6 @@
         rest
         s/join)))
 
-(script-loc)
-
 (def db (sql. (str (script-loc) "/db/birthdays.db")))
 
 (defn write-birthday
@@ -271,8 +269,6 @@
                                                        (script-loc)
                                                        "/invalid.txt"))))
     :else (println "Unknown Help Mode")))
-
-(help-message "help")
 
 (cond
   (= (first cmd-line-args) "list") (list-birthdays)
