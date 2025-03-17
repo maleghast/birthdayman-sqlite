@@ -79,15 +79,17 @@
   [type name gift-idea]
   (cond
     (= type "month") (str "It's "
-                          (str name "'s")
+                          name 
+                          "'s"
                           " Birthday this month and they want a "
-                          (str gift-idea)
+                          gift-idea
                           " 🏆")
     :else
     (str "It's "
-         (str name "'s")
+         name 
+         "'s"
          " Birthday today and they want a "
-         (str gift-idea)
+         gift-idea
          " 🏆")))
 
 (defn list-birthdays
@@ -261,24 +263,26 @@
 
 (defn get-banner
   [banner-message] 
-   (p/let [banner (figlet/textSync banner-message)]
-     banner))
+   (figlet/textSync banner-message))
 
 
 (defn help-message
   "Function to display help and other on-invocation messages"
+  [mode banner]
+  (println (str banner))
+  (cond
+    (= mode "help") (println (str (fs/readFileSync (str
+                                                    (script-loc)
+                                                    "/help.txt"))))
+    (= mode "invalid") (println (str (fs/readFileSync (str
+                                                       (script-loc)
+                                                       "/invalid.txt"))))
+    :else (println "Unknown Help Mode")))
+
+(defn help-message-builder
   [mode]
-   (cond
-     (= mode "help") (println
-                      (get-banner "BIRTHDAYMAN - SQLITE")
-                      "\n"
-                      (str (fs/readFileSync (str
-                                             (script-loc)
-                                             "/help.txt"))))
-     (= mode "invalid") (println (str (fs/readFileSync (str
-                                                        (script-loc)
-                                                        "/invalid.txt"))))
-     :else (println "Unknown Help Mode")))
+  (p/let [banner-txt (get-banner "BIRTHDAYMAN - SQLITE")]
+    (help-message mode banner-txt)))
 
 (cond
   (= (first cmd-line-args) "list") (list-birthdays)
@@ -290,7 +294,7 @@
                                                 (last cmd-line-args))
   (= (first cmd-line-args) "search-month") (search-birthdays-by-month
                                                   (last cmd-line-args))
-  (= (first cmd-line-args) "help") (help-message "help")
+  (= (first cmd-line-args) "help") (help-message-builder "help")
   :else (if (= 0 (count cmd-line-args))
           (create-birthday-entry)
-          (help-message "invalid")))
+          (help-message-builder "invalid")))
