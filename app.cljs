@@ -5,6 +5,7 @@
             ["inquirer$default" :as inquirer]
             ["moment$default" :as moment]
             ["console" :as console]
+            ["figlet$default" :as figlet]
             [nbb.core]
             [promesa.core :as p]
             [clojure.string :as s]))
@@ -258,17 +259,26 @@
       (println "No Birthdays in" (str month))
       (console/table (clj->js s_mesgs)))))
 
+(defn get-banner
+  [banner-message] 
+   (p/let [banner (figlet/textSync banner-message)]
+     banner))
+
+
 (defn help-message
   "Function to display help and other on-invocation messages"
   [mode]
-  (cond
-    (= mode "help") (println (str (fs/readFileSync (str
-                                                    (script-loc)
-                                                    "/help.txt"))))
-    (= mode "invalid") (println (str (fs/readFileSync (str
-                                                       (script-loc)
-                                                       "/invalid.txt"))))
-    :else (println "Unknown Help Mode")))
+   (cond
+     (= mode "help") (println
+                      (get-banner "BIRTHDAYMAN - SQLITE")
+                      "\n"
+                      (str (fs/readFileSync (str
+                                             (script-loc)
+                                             "/help.txt"))))
+     (= mode "invalid") (println (str (fs/readFileSync (str
+                                                        (script-loc)
+                                                        "/invalid.txt"))))
+     :else (println "Unknown Help Mode")))
 
 (cond
   (= (first cmd-line-args) "list") (list-birthdays)
