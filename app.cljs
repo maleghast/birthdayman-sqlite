@@ -10,9 +10,7 @@
             [promesa.core :as p]
             [clojure.string :as s]))
 
-;;; Defining cmd-line args for use via index.mjs
-(def cmd-line-args (not-empty (js->clj (.slice js/process.argv 2))))
-
+;;; General Functions
 (defn script-loc
   "Function to get the Script Location"
   []
@@ -26,11 +24,22 @@
         rest
         s/join)))
 
-(def db (sql. (str (script-loc) "/db/birthdays.db")))
-
 (defn get-banner
   [banner-message]
   (figlet/textSync banner-message))
+
+(defn in?
+  "true if coll contains elm"
+  [coll elm]
+  (some #(= elm %) coll))
+
+;;; Defs
+;;; Defining cmd-line args for use via index.mjs
+(def cmd-line-args (not-empty (js->clj (.slice js/process.argv 2))))
+
+(def db (sql. (str (script-loc) "/db/birthdays.db")))
+
+(def valid-params '("list" "list-people" "update" "delete" "search-day" "search-month" "help"))
 
 (def top-div
   "***************************************************************************************************************")
@@ -65,6 +74,7 @@
                           :message "What shall you get for them?"
                           :default "Beats the shit outta me!"}]))
 
+;;; Action Functions
 (defn write-birthday
   "Function to persist a Birthday Record"
   [name day month year gift-idea]
@@ -91,11 +101,6 @@
           answers (js->clj _answers :keywordize-keys true)
           {:keys [name day month year gift-idea]} answers]
     (write-birthday name day month year gift-idea)))
-
-(defn build-create-birthday-entry
-  []
-  (p/let [banner-text (get-banner "BIRTHDAYMAN - SQLITE")]
-    (create-birthday-entry banner-text)))
 
 (defn make-birthday-message
   "Function to build a birthday message"
@@ -150,11 +155,6 @@
            (println "No Birthdays Today")
            (console/table (clj->js b_mesgs)))))
 
-(defn build-list-birthdays
-  []
-  (p/let [banner-text (get-banner "BIRTHDAYMAN - SQLITE")]
-    (list-birthdays banner-text)))
-
 (defn get-people
   "Function to retrieve the People in the Database"
   []
@@ -171,11 +171,6 @@
   (println top-div)
   (let [users (get-people)]
     (console/table (clj->js users))))
-
-(defn build-list-people
-  []
-  (p/let [banner-text (get-banner "BIRTHDAYMAN - SQLITE")]
-    (list-people banner-text)))
 
 (defn get-people-choices
   "Function to get realised choices from get-people"
@@ -221,11 +216,6 @@
           {:keys [personID gift-idea]} answers]
     (update-birthday-gift personID gift-idea)))
 
-(defn build-update-birthday-entry
-  []
-  (p/let [banner-text (get-banner "BIRTHDAYMAN - SQLITE")]
-    (update-birthday-entry banner-text)))
-
 (def delete-questions
   (let [choices (get-people-choices)]
     (clj->js [{:name "personID"
@@ -255,14 +245,9 @@
           {:keys [:personID]} answers]
          (delete-birthday personID)))
 
-(defn build-delete-birthday-entry
-  []
-  (p/let [banner-text (get-banner "BIRTHDAYMNA - SQLITE")]
-    (delete-birthday-entry banner-text)))
-
 (defn search-birthdays-by-day
   "Function to search for Birthdays on a specific day"
-  [day month banner]
+  [banner day month]
   (println top-div)
   (println banner)
   (println top-div)
@@ -292,14 +277,9 @@
       (println "No Birthdays on" (str day " " month))
       (console/table (clj->js s_mesgs)))))
 
-(defn build-search-birthdays-by-day
-  [day month]
-  (p/let [banner-text (get-banner "BIRTHDAYMAN - SQLITE")]
-    (search-birthdays-by-day day month banner-text)))
-
 (defn search-birthdays-by-month
   "Function to search for Birthdays in a specific month"
-  [month banner]
+  [banner month]
   (println top-div)
   (println banner)
   (println top-div)
@@ -327,37 +307,45 @@
       (println "No Birthdays in" (str month))
       (console/table (clj->js s_mesgs)))))
 
-(defn build-search-birthdays-by-month
-  [month]
-  (p/let [banner-text (get-banner "BIRTHDAYMAN - SQLITE")]
-    (search-birthdays-by-month month banner-text)))
-
 (defn help-message
   "Function to display help and other on-invocation messages"
-  [mode banner]
+  [banner]
   (println top-div)
   (println banner)
-  (cond
-    (= mode "help") (println hlp-msg)
-    (= mode "invalid") (println inv-msg)
-    :else (println "Unknown Help Mode")))
+  (println hlp-msg))
 
-(defn build-help-message
-  [mode]
+(defn invalid-message
+  "Function to display invalid param message"
+  [banner]
+  (println top-div)
+  (println banner)
+  (println inv-msg))
+
+;;; Despatcher
+(defn despatch-action
+  "function to despatch actions passing in banner and other needed params"
+  [mode args]
   (p/let [banner-txt (get-banner "BIRTHDAYMAN - SQLITE")]
-    (help-message mode banner-txt)))
+    (cond
+      (= mode "create") (create-birthday-entry banner-txt)
+      (= mode "list") (list-birthdays banner-txt)
+      (= mode "list-people") (list-people banner-txt)
+      (= mode "update") (update-birthday-entry banner-txt)
+      (= mode "delete") (delete-birthday-entry banner-txt)
+      (= mode "search-day") (search-birthdays-by-day
+                             banner-txt
+                             (first args)
+                             (second args))
+      (= mode "search-month") (search-birthdays-by-month
+                               banner-txt
+                               (first args))
+      (= mode "help") (help-message banner-txt)
+      (= mode "invalid") (invalid-message banner-txt))))
 
-(cond
-  (= (first cmd-line-args) "list") (build-list-birthdays)
-  (= (first cmd-line-args) "list-people") (build-list-people)
-  (= (first cmd-line-args) "update") (build-update-birthday-entry)
-  (= (first cmd-line-args) "delete") (build-delete-birthday-entry)
-  (= (first cmd-line-args) "search-day") (build-search-birthdays-by-day
-                                                (second cmd-line-args)
-                                                (last cmd-line-args))
-  (= (first cmd-line-args) "search-month") (build-search-birthdays-by-month
-                                                  (last cmd-line-args))
-  (= (first cmd-line-args) "help") (build-help-message "help")
-  :else (if (= 0 (count cmd-line-args))
-          (build-create-birthday-entry)
-          (build-help-message "invalid")))
+;;; Triggering code that is eval'ed and run
+(let [mode (first cmd-line-args)]
+  (if (nil? mode)
+    (despatch-action "create" '())
+    (if (not (in? valid-params mode))
+      (despatch-action "invalid" '())
+      (despatch-action mode (rest cmd-line-args)))))
