@@ -1,5 +1,7 @@
 ***************************************************************************************************************
 
-Invalid argument - please run: nbb app.cljs help 
+Invalid argument - please run: birthdayman help
+
+(or if not installed, running in project root of source - node index.mjs help)
 
 ***************************************************************************************************************

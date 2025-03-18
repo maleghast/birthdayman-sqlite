@@ -2,20 +2,23 @@
 
 - run the app to add a birthday:
 
-node index.mjs
+birthdayman
+
+(or if not installed, running in project root of source - node index.mjs)
 
 - add the following arguments for other commands:
 
-help (see this help)
-list (see today's birthdays)
-list-people (see a complete list of stored birthdays)
-update (update a gift idea for a specific person)
-delete (delete a person from the list)
-search-day [day] [month] e.g. search-day 10 May (search for birthdays on
+birthdayman help (see this help)
+birthdayman list (see today's birthdays)
+birthdayman list-people (see a complete list of stored birthdays)
+birthdayman update (update a gift idea for a specific person)
+birthdayman delete (delete a person from the list)
+birthdayman search-day [day] [month] e.g. search-day 10 May (search for birthdays on
                                                  a specific day)
-search-month [month] e.g. search-month May (search for birthdays in a
+birthdayman search-month [month] e.g. search-month May (search for birthdays in a
                                             specific month)
 
 If you append any other argument it won't work.
 
+(or if not installed, running in project root of source - node index.mjs help | node index.mjs list etc.)
 ***************************************************************************************************************
