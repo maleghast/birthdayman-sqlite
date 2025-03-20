@@ -25,6 +25,12 @@ To use the app simply use the following commands:
 * birthdayman list-people
 etc.
 
+You may find it useful to append a call to birthdayman using the "reminder" argument, thus:
+
+birthdayman reminder [month]
+
+to your shell config, so that you get a list of upcoming birthdays for the current and following month when launching a new terminal.
+
 ## Usage - Development
 
 If you just want to play around with this for yourself the simplest way to do that is to clone the repo, and then follow these steps:

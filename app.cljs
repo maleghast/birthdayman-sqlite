@@ -33,13 +33,24 @@
   [coll elm]
   (some #(= elm %) coll))
 
+(defn next-month
+  [curr-month]
+  (.format
+   (.add
+    (.month
+     (moment)
+     curr-month)
+    1
+    "months")
+   "MMMM"))
+
 ;;; Defs
 ;;; Defining cmd-line args for use via index.mjs
 (def cmd-line-args (not-empty (js->clj (.slice js/process.argv 2))))
 
 (def db (sql. (str (script-loc) "/db/birthdays.db")))
 
-(def valid-params '("list" "list-people" "update" "delete" "search-day" "search-month" "help"))
+(def valid-params '("list" "list-people" "update" "delete" "search-day" "search-month" "reminder" "help"))
 
 (def top-div
   "***************************************************************************************************************")
@@ -279,33 +290,51 @@
 
 (defn search-birthdays-by-month
   "Function to search for Birthdays in a specific month"
-  [banner month]
-  (println top-div)
-  (println banner)
-  (println top-div)
+  [month]
   (let [s_query (.prepare db "SELECT * FROM 
                               people AS p, gift_ideas AS g 
                               WHERE month=? 
                               AND p.personID=g.personID 
                               ORDER BY day,sname ASC")
         s_resp (.all s_query month)
-        s_res (js->clj s_resp :keywordize-keys true)
-        s_mesgs (reduce
-                 (fn [acc coll]
-                   (conj
-                    acc
-                    {:day (:day coll)
-                     :month month
-                     :birthday-message
-                     (make-birthday-message
-                      "month"
-                      (:name coll)
-                      (:gift_idea coll))}))
-                 []
-                 s_res)]
+        s_res (js->clj s_resp :keywordize-keys true)]
+    (reduce
+     (fn [acc coll]
+       (conj
+        acc
+        {:day (:day coll)
+         :month month
+         :birthday-message
+         (make-birthday-message
+          "month"
+          (:name coll)
+          (:gift_idea coll))}))
+     []
+     s_res)))
+
+(defn show-search-results-month
+  [banner month]
+  (println top-div)
+  (println banner)
+  (println top-div)
+  (let [s_mesgs (search-birthdays-by-month month)]
     (if (= 0 (count s_mesgs))
       (println "No Birthdays in" (str month))
       (console/table (clj->js s_mesgs)))))
+
+(defn show-reminder
+  [banner month]
+  (println top-div)
+  (println banner)
+  (println top-div)
+  (let [bs-this-month (search-birthdays-by-month month)
+        bs-next-month (search-birthdays-by-month (next-month month))]
+    (if (= 0 (count bs-this-month))
+      (println "No Birthdays in" (str month))
+      (console/table (clj->js bs-this-month)))
+    (if (= 0 (count bs-next-month))
+      (println "No Birthdays in" (str (next-month month)))
+      (console/table (clj->js bs-next-month)))))
 
 (defn help-message
   "Function to display help and other on-invocation messages"
@@ -336,9 +365,12 @@
                              banner-txt
                              (first args)
                              (second args))
-      (= mode "search-month") (search-birthdays-by-month
+      (= mode "search-month") (show-search-results-month
                                banner-txt
                                (first args))
+      (= mode "reminder") (show-reminder
+                           banner-txt
+                           (first args))
       (= mode "help") (help-message banner-txt)
       (= mode "invalid") (invalid-message banner-txt))))
 

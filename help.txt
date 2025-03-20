@@ -17,6 +17,7 @@ birthdayman search-day [day] [month] e.g. search-day 10 May (search for birthday
                                                  a specific day)
 birthdayman search-month [month] e.g. search-month May (search for birthdays in a
                                             specific month)
+birthdayman reminder [month] e.g. search for birthdays in specfic month AND next
 
 If you append any other argument it won't work.
 
