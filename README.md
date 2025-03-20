@@ -1,8 +1,8 @@
-# BirthdayMan - a Toy App for managing birthday reminders
+# BirthdayMan - a CLI App for managing birthday reminders
 
 ## Introduction
 
-This is a "toy" app based on the app created by Dan Amber as part of an online video / tutorial about
+This is a CLI app based on the app created by Dan Amber as part of an online video / tutorial about
 [NBB](https://github.com/babashka/nbb) - here's a link to his [project](https://github.com/danownsthisspace/birthman)
 
 In the spirit of trying to learn NBB for myself but get a flying start from Dan's excellent video, I decided
